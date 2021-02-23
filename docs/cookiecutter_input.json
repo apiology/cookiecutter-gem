@@ -7,5 +7,6 @@
     "project_name": "Cookiecutter Gem",
     "project_short_description": "Gem Boilerplate contains all the boilerplate you need to create a RubyGems project.",
     "project_slug": "cookiecutter-gem",
-    "project_super_short_description": "Cookiecutter template for a RubyGems project."
+    "project_super_short_description": "Cookiecutter template for a RubyGems project.",
+    "type_of_github_repo": "public"
 }
