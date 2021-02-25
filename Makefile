@@ -25,10 +25,6 @@ test: ## run tests quickly
 	pytest
 
 quality:  ## run precommit quality checks
-	ruby --version
-	echo $$BUNDLE_PATH
-	which ruby
-	which bundle
 	bundle exec overcommit --run
 
 help:
