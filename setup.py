@@ -21,7 +21,7 @@ class QualityCommand(Command):
 
     def run(self) -> None:
         """Run command."""
-        command = ['overcommit', '--run']
+        command = ['bundle', 'exec', 'overcommit', '--run']
         self.announce(
             'Running command: %s' % str(command),
             level=distutils.log.INFO)  # type: ignore
