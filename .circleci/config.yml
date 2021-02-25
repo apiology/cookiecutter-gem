@@ -70,7 +70,8 @@ jobs:
           condition:
             equal: [<< pipeline.git.branch >>, "main"]
           steps:
-            - tox  # TODO
+            - tox:
+                tox_arguments: '-e quality'
             - tox:
                 tox_arguments: '-e py39'
       - when:
