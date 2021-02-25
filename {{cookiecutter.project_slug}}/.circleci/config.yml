@@ -10,7 +10,7 @@ commands:
           sed -E -e 's/{{cookiecutter.project_slug}} \([[:digit:]]+.[[:digit:]]+.[[:digit:]]+\)/{{cookiecutter.project_slug}} (0.1.0)/g' \
           Gemfile.lock > Gemfile.lock.deversioned
       - restore_cache:
-          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}-v1
+          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
       - restore_cache:
           key: ruby-and-python-v2-{% raw %}{{ checksum "fix.sh" }}{% endraw %}
       - run:
@@ -24,7 +24,7 @@ commands:
             - "/home/circleci/.rbenv"
             - "/home/circleci/.pyenv"
       - save_cache:
-          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}-v1
+          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
           paths:
             - "vendor/bundle"
       - run:
