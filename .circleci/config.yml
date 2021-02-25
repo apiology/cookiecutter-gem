@@ -66,10 +66,12 @@ jobs:
     docker:
       - image: apiology/circleci-ruby:latest
     steps:
+      - set_up_environment
       - unless:
           condition:
             equal: [<< pipeline.git.branch >>, "main"]
           steps:
+            - run: ls -l vendor/bundle
             - tox:
                 tox_arguments: '-e quality'
             - tox:
