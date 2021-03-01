@@ -10,21 +10,29 @@ commands:
           sed -E -e 's/{{cookiecutter.project_slug}} \([[:digit:]]+.[[:digit:]]+.[[:digit:]]+\)/{{cookiecutter.project_slug}} (0.1.0)/g' \
           Gemfile.lock > Gemfile.lock.deversioned
       - restore_cache:
-          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
+          key: gems-v4-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
       - restore_cache:
-          key: ruby-and-python-v2-{% raw %}{{ checksum "fix.sh" }}{% endraw %}
+          key: ruby-and-python-v4-{% raw %}{{ checksum "fix.sh" }}{% endraw %}
       - run:
           name: Initialize packages
           command: |
             export BUNDLE_PATH=vendor/bundle
             './fix.sh'
+      - run:
+          name: Verify Gemfile.lock
+          command: |
+            if ! git diff --exit-code Gemfile.lock
+            then
+              >&2 echo "Please resolve changes to Gemfile.lock after bundle install to avoid caching difficulties"
+              exit 1
+            fi
       - save_cache:
-          key: ruby-and-python-v2-{% raw %}{{ checksum "fix.sh" }}{% endraw %}
+          key: ruby-and-python-v4-{% raw %}{{ checksum "fix.sh" }}{% endraw %}
           paths:
             - "/home/circleci/.rbenv"
             - "/home/circleci/.pyenv"
       - save_cache:
-          key: gems-v1-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
+          key: gems-v4-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
           paths:
             - "vendor/bundle"
       - run:
@@ -65,7 +73,7 @@ commands:
 jobs:
   overcommit:
     docker:
-      - image: apiology/circleci-ruby:latest
+      - image: apiology/circleci:latest
     steps:
       - when:
           condition:
@@ -80,7 +88,7 @@ jobs:
   build:
     working_directory: ~/{{cookiecutter.project_slug}}
     docker:
-      - image: apiology/circleci-ruby:latest
+      - image: apiology/circleci:latest
     steps:
       - set_up_environment
       - run:
