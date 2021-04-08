@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "{{ cookiecutter.project_short_description.replace('\"', '\\\"') }}"
   spec.homepage      = 'https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}'
   spec.license       = '{{ cookiecutter.open_source_license }}'
-  spec.required_ruby_version = '>= 2.5'
+  spec.required_ruby_version = '>= 2.6'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
