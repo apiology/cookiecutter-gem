@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'open3'
-require 'bigfiles'
+require '{{cookiecutter.project_slug}}'
 
 # Add the bin directory, to allow testing of gem executables as if the gem is
 # already installed.
