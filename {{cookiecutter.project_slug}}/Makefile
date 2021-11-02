@@ -55,6 +55,9 @@ feature: ## Run higher-level tests
 localtest: ## run default local actions
 	@bundle exec rake localtest
 
+repl:  ## Load up {{cookiecutter.project_slug}} in pry
+	@bundle exec rake repl
+
 update_from_cookiecutter: ## Bring in changes from template project used to create this repo
 	bundle exec overcommit --uninstall
 	IN_COOKIECUTTER_PROJECT_UPGRADER=1 cookiecutter_project_upgrader || true
