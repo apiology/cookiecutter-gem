@@ -45,6 +45,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov-lcov'
   spec.add_development_dependency 'undercover'
   spec.metadata = {
-    'rubygems_mfa_required' => 'true'
+    'rubygems_mfa_required' => 'true',
   }
 end
