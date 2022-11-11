@@ -16,7 +16,9 @@ SimpleCov.start do
   track_files '{app,lib}/**/*.rb'
   enable_coverage(:branch) # Report branch coverage to trigger branch-level undercover warnings
 end
-SimpleCov.refuse_coverage_drop
+
+require 'fakeweb'
+FakeWeb.allow_net_connect = false
 
 RSpec.configure do |config|
   config.order = 'random'
