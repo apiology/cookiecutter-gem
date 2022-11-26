@@ -40,11 +40,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', ['~> 1.36']
   spec.add_development_dependency 'rubocop-rake'
   # ensure version with RSpec/VerifiedDoubleReference
-  spec.add_development_dependency 'rubocop-rspec', ['>=0.18.0']
+  spec.add_development_dependency 'rubocop-rspec', ['>=2.10.0']
   # ensure version with branch coverage
   spec.add_development_dependency 'simplecov', ['>=0.18.0']
   spec.add_development_dependency 'simplecov-lcov'
   spec.add_development_dependency 'undercover'
+  spec.add_development_dependency 'webmock'
   spec.metadata = {
     'rubygems_mfa_required' => 'true',
   }
