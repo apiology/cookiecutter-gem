@@ -37,7 +37,7 @@ PLATFORMS
 
 DEPENDENCIES
   mdl
-  overcommit (>= 0.60.0)
+  overcommit (>= 0.60.0, < 0.61.0)
 
 BUNDLED WITH
    2.2.22
