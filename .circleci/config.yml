@@ -103,8 +103,7 @@ jobs:
   test:
     working_directory: ~/cookiecutter-ruby
     docker:
-      # Need oldest supported Ruby when testing
-      - image: apiology/circleci-ruby:latest
+      - image: apiology/circleci-python:latest
     steps:
       - unless:
           condition:
