@@ -134,6 +134,7 @@ ensure_ruby_versions() {
       CFLAGS="-Wno-error=implicit-function-declaration" rbenv install -s "${ver}"
     else
       rbenv install -s "${ver}"
+      hash -r  # ensure we are seeing latest bundler etc
     fi
   done
 }
