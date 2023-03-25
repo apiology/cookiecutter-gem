@@ -1,7 +1,5 @@
 #!/bin/bash -eu
 
-set -x  # DEBUG REMOVE
-
 set -o pipefail
 
 apt_upgraded=0
