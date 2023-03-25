@@ -175,6 +175,8 @@ ensure_bundle() {
   if [ "${need_better_bundler}" = true ]
   then
     bundle update --bundler
+    rm -f Gemfile.lock.installed # ensure next step installs fresh
+                                 # bundle
   fi
   make bundle_install
   # https://bundler.io/v2.0/bundle_lock.html#SUPPORTING-OTHER-PLATFORMS
