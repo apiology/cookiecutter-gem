@@ -177,9 +177,11 @@ ensure_bundle() {
   fi
   if [ "${need_better_bundler}" = true ]
   then
+    # need to do this first before 'bundle update --bundler' will work
+    make bundle_install
     bundle update --bundler
-    rm -f Gemfile.lock.installed # ensure next step installs fresh
-                                 # bundle
+    # ensure next step installs fresh bundle
+    rm -f Gemfile.lock.installed
   fi
   make bundle_install
   # https://bundler.io/v2.0/bundle_lock.html#SUPPORTING-OTHER-PLATFORMS
