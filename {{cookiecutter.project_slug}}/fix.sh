@@ -146,18 +146,23 @@ ensure_bundle() {
   # Version <2.2.22 of bundler isn't compatible with Ruby 3.3:
   #
   # https://stackoverflow.com/questions/70800753/rails-calling-didyoumeanspell-checkers-mergeerror-name-spell-checker-h
+  #
+  #
+  # Version 2.5.5 fixed an issue in 2.2.22 with the 'bump' gem:
+  #
+  # https://app.circleci.com/pipelines/github/apiology/checkoff/1281/workflows/f667f909-c3fc-4ae2-8593-dde2b588a7a7/jobs/2491
   need_better_bundler=false
   if [ "${bundler_version_major}" -lt 2 ]
   then
     need_better_bundler=true
   elif [ "${bundler_version_major}" -eq 2 ]
   then
-    if [ "${bundler_version_minor}" -lt 2 ]
+    if [ "${bundler_version_minor}" -lt 5 ]
     then
       need_better_bundler=true
-    elif [ "${bundler_version_minor}" -eq 2 ]
+    elif [ "${bundler_version_minor}" -eq 5 ]
     then
-      if [ "${bundler_version_patch}" -lt 23 ]
+      if [ "${bundler_version_patch}" -lt 5 ]
       then
         need_better_bundler=true
       fi
@@ -165,9 +170,12 @@ ensure_bundle() {
   fi
   if [ "${need_better_bundler}" = true ]
   then
+    >&2 echo "Original bundler version: ${bundler_version}"
     # need to do this first before 'bundle update --bundler' will work
     make bundle_install
     bundle update --bundler
+    gem install bundler:2.5.5
+    >&2 echo "Updated bundler version: $(bundle --version)"
     # ensure next step installs fresh bundle
     rm -f Gemfile.lock.installed
   fi
