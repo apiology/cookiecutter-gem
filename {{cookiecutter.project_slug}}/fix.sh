@@ -136,6 +136,7 @@ ensure_bundle() {
   #
   # https://app.circleci.com/pipelines/github/apiology/source_finder/21/workflows/88db659f-a4f4-4751-abc0-46f5929d8e58/jobs/107
   set_rbenv_env_variables
+  rbenv versions # TODO
   bundle --version >/dev/null 2>&1 || gem install --no-document bundler
   bundler_version=$(bundle --version | cut -d ' ' -f3)
   bundler_version_major=$(cut -d. -f1 <<< "${bundler_version}")
