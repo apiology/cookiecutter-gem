@@ -1,4 +1,4 @@
-.PHONY: clean test help quality localtest spec feature
+.PHONY: clean clean-typecheck feature help localtest quality repl rubocop spec test
 .DEFAULT_GOAL := default
 
 define PRINT_HELP_PYSCRIPT
@@ -16,6 +16,14 @@ help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 default: clean-coverage test coverage clean-typecoverage typecheck typecoverage quality ## run default typechecking, tests and quality
+
+clean-typecheck: ## Refresh information that type checking depends on
+	bundle install
+	bundle exec solargraph clear
+	rm -fr .yardoc/
+	bundle exec yard gems
+	bundle exec solargraph scan
+	echo all clear
 
 typecheck: ## validate types in code and configuration
 
