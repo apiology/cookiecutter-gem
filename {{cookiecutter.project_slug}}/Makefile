@@ -1,4 +1,4 @@
-.PHONY: clean clean-typecheck feature help localtest quality repl rubocop spec test
+.PHONY: build-typecheck bundle_install cicoverage citypecheck citest citypecoverage clean clean-coverage clean-typecheck clean-typecoverage coverage default feature help localtest overcommit quality repl report-coverage report-coverage-to-codecov rubocop spec test typecheck typecoverage update_from_cookiecutter
 .DEFAULT_GOAL := default
 
 define PRINT_HELP_PYSCRIPT
@@ -17,15 +17,18 @@ help:
 
 default: clean-coverage test coverage clean-typecoverage typecheck typecoverage quality ## run default typechecking, tests and quality
 
-clean-typecheck: ## Refresh information that type checking depends on
+build-typecheck: ## Fetch information that type checking depends on
 	bundle install
+	bundle exec yard gems 2>&1
+	bundle exec solargraph scan 2>&1
+
+clean-typecheck: ## Refresh information that type checking depends on
 	bundle exec solargraph clear
 	rm -fr .yardoc/
-	bundle exec yard gems
-	bundle exec solargraph scan
 	echo all clear
 
 typecheck: ## validate types in code and configuration
+	bundle exec solargraph typecheck --level strong
 
 citypecheck: typecheck ## Run type check from CircleCI
 
@@ -65,6 +68,11 @@ overcommit: ## run precommit quality checks
 	bundle exec overcommit --run
 
 quality: overcommit ## run precommit quality checks
+
+rubocop: ## Run rubocop
+	@bundle exec rubocop
+
+test: spec ## run tests quickly
 
 spec: ## Run lower-level tests
 	@bundle exec rake spec
