@@ -22,7 +22,8 @@ commands:
             eval "$(pyenv init --path)"
             eval "$(pyenv virtualenv-init -)"
             eval "$(rbenv init -)"
-            export BUNDLE_PATH=vendor/bundle
+            # keep this in a single place for both main and child builds for cachability
+            export BUNDLE_PATH="$(pwd)/vendor/bundle"
 
             <<parameters.command>>
           environment:
@@ -59,8 +60,8 @@ commands:
           key: wheels-v1-3.12.1-{{ checksum "requirements_dev.txt" }}
           paths:
             - "/home/circleci/.cache/pip/wheels"
-            - "/home/circleci/.pyenv/versions/3.12.1/envs/cookiecutter-ruby-3.12.1"
-            - "/home/circleci/.pyenv/versions/cookiecutter-ruby-3.12.1"
+            - "/home/circleci/.pyenv/versions/3.12.1/envs/cookiecutter-gem-3.12.1"
+            - "/home/circleci/.pyenv/versions/cookiecutter-gem-3.12.1"
       - run:
           name: Download new circleci tool
           command: |
@@ -103,8 +104,14 @@ commands:
             tox <<parameters.tox_arguments>>
 
 jobs:
+  overcommit:
+    working_directory: ~/cookiecutter-gem
+    docker:
+      - image: apiology/circleci-python:latest
+    steps:
+      - overcommit
   build:
-    working_directory: ~/cookiecutter-ruby
+    working_directory: ~/cookiecutter-gem
     docker:
       - image: apiology/circleci-python:latest
     steps:
@@ -115,8 +122,14 @@ jobs:
             # skip tox to speed things by not installing another
             # virtualenv, and only run in default Python version.
             - set_up_environment
+            - restore_cache:
+                key: child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}
             - run_with_languages:
-                label: make test
+                label: Typecheck
+                command: |
+                  make build-typecheck citypecheck citypecoverage
+            - run_with_languages:
+                label: Test
                 command: |
                   # These will be used in post_gen_project.py while testing
                   # the cookies, as well as by overcommit
@@ -127,6 +140,10 @@ jobs:
                   bundle exec overcommit --sign pre-commit
 
                   make citest cicoverage
+            - save_cache:
+                key: child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}
+                paths:
+                  - "vendor/bundle"
       - when:
           condition:
             equal: [<< pipeline.git.branch >>, "main"]
@@ -134,21 +151,6 @@ jobs:
             - tox
     # This seemed to shave 5ish% of the build time off when added
     resource_class: large
-  overcommit:
-    working_directory: ~/cookiecutter-ruby
-    docker:
-      - image: apiology/circleci-python:latest
-    steps:
-      - when:
-          condition:
-            equal: [<< pipeline.git.branch >>, "main"]
-          steps:
-            - overcommit
-      - unless:
-          condition:
-            equal: [<< pipeline.git.branch >>, "main"]
-          steps:
-            - run: echo "overcommit only runs on main branch"
 
 workflows:
   version: 2
