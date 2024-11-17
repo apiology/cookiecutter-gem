@@ -39,9 +39,21 @@ commands:
           sed -E -e 's/{{cookiecutter.project_slug}} \([[:digit:]]+.[[:digit:]]+.[[:digit:]]+\)/{{cookiecutter.project_slug}} (0.1.0)/g' \
            > Gemfile.lock.deversioned
       - restore_cache:
-          key: gems-v2-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
+          keys:
+            - yardoc-v1-{% raw %}{{ .Branch }}{% endraw %}
+            - yardoc-v1-
+            - yardoc-
       - restore_cache:
-          key: wheels-v1-3.12.1-{% raw %}{{ checksum "requirements_dev.txt" }}{% endraw %}
+          keys:
+            - gems-v2-{% raw %}{{ checksum "Gemfile.lock.deversioned" }}{% endraw %}
+            - gems-v2-
+            - gems-
+      - restore_cache:
+          keys:
+            - wheels-v1-3.12.1-{% raw %}{{ checksum "requirements_dev.txt" }}{% endraw %}
+            - wheels-v1-3.12.1-
+            - wheels-v1-
+            - wheels-
       - run:
           name: Initialize packages
           command: |
@@ -65,6 +77,10 @@ commands:
             - "/home/circleci/.cache/pip/wheels"
             - "/home/circleci/.pyenv/versions/3.12.1/envs/{{cookiecutter.project_slug}}-3.12.1"
             - "/home/circleci/.pyenv/versions/{{cookiecutter.project_slug}}-3.12.1"
+      - save_cache:
+          key: yardoc-v1-{% raw %}{{ .Branch }}{% endraw %}
+          paths:
+            - ".yardoc"
       - run:
           name: Download new circleci tool
           command: |
