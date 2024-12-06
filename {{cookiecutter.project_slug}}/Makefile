@@ -45,7 +45,7 @@ pip_install: requirements_dev.txt.installed ## Install Python dependencies
 
 # bundle install doesn't get run here so that we can catch it below in
 # fresh-checkout and fresh-rbenv cases
-Gemfile.lock: Gemfile
+Gemfile.lock: Gemfile {{cookiecutter.project_slug}}.gemspec
 
 # Ensure any Gemfile.lock changes ensure a bundle is installed.
 Gemfile.lock.installed: Gemfile.lock
