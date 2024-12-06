@@ -118,9 +118,9 @@ cicoverage: report-coverage-to-codecov ## check code coverage, then report to co
 update_from_cookiecutter: ## Bring in changes from template project used to create this repo
 	bundle exec overcommit --uninstall
 	git checkout main && git pull && git checkout -b update-from-upstream-cookiecutter-$$(date +%Y-%m-%d-%H%M)
-	git fetch upstream
+	git fetch cookiecutter-upstream
 	git fetch -a
-	git merge upstream/main --allow-unrelated-histories || true
+	git merge cookiecutter-upstream/main --allow-unrelated-histories || true
 	# update frequently security-flagged gems while we're here
 	bundle update --conservative rexml || true
 	git add Gemfile.lock || true
