@@ -25,6 +25,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # spec.add_runtime_dependency 'activesupport'
+{% if cookiecutter.use_checkoff == 'Yes' %}  spec.add_runtime_dependency 'redis'
+{% endif %}
 
   spec.metadata = {
     'rubygems_mfa_required' => 'true',

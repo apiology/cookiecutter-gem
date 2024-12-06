@@ -82,9 +82,10 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 test: ## run tests quickly
-	pytest --maxfail=0
+	pytest --maxfail=1 tests/test_bake_project.py --capture=no -v
 
-citest: test ## Run unit tests from CircleCI
+citest:  ## Run unit tests from CircleCI
+	pytest --maxfail=1 tests/test_bake_project.py -v
 
 overcommit: ## run precommit quality checks
 	bundle exec overcommit --run
@@ -108,7 +109,7 @@ clean-coverage: ## Clean out previous output of test coverage to avoid flaky res
 
 coverage: test report-coverage ## check code coverage
 
-report-coverage: test ## Report summary of coverage to stdout, and generate HTML, XML coverage report
+report-coverage: citest ## Report summary of coverage to stdout, and generate HTML, XML coverage report
 
 report-coverage-to-codecov: report-coverage ## use codecov.io for PR-scoped code coverage reports
 
@@ -120,7 +121,11 @@ update_from_cookiecutter: ## Bring in changes from template project used to crea
 	git fetch upstream
 	git fetch -a
 	git merge upstream/main --allow-unrelated-histories || true
-	bundle exec overcommit --install
+	# update frequently security-flagged gems while we're here
+	bundle update --conservative rexml || true
+	git add Gemfile.lock || true
+	bundle install || true
+	bundle exec overcommit --install || true
 	@echo
 	@echo "Please resolve any merge conflicts below and push up a PR with:"
 	@echo
