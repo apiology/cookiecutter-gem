@@ -132,7 +132,8 @@ jobs:
       - set_up_environment
       - restore_cache:
           keys:
-            - child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}
+            - child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-  # yamllint disable-line rule:line-length
+            - child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-
             - child-gems-v1-
             - child-gems-
       - run_with_languages:
@@ -144,11 +145,6 @@ jobs:
           steps:
             # skip tox to speed things by not installing another
             # virtualenv, and only run in default Python version.
-            - restore_cache:
-                keys:
-                  - child-gems-v4-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-
-                  - child-gems-v4-
-                  - child-gems-
             - run_with_languages:
                 label: Test
                 command: |
@@ -169,7 +165,7 @@ jobs:
             - store_artifacts:
                 path: /tmp/child_fix_sh_timing.log
             - save_cache:
-                key: child-gems-v4-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-{{ checksum "/tmp/.ruby-version" }} # yamllint disable-line rule:line-length
+                key: child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-{{ checksum "/tmp/.ruby-version" }} # yamllint disable-line rule:line-length
                 paths:
                   - "vendor/bundle"
                   - ".yardoc"
