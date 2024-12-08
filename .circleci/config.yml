@@ -152,12 +152,6 @@ jobs:
       - image: cimg/base:current
     steps:
       - set_up_environment
-      - restore_cache:
-          keys:
-            - child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-  # yamllint disable-line rule:line-length
-            - child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-
-            - child-gems-v1-
-            - child-gems-
       - run_with_languages:
           label: Typecheck
           command: make citypecheck citypecoverage
@@ -187,7 +181,7 @@ jobs:
             - store_artifacts:
                 path: /tmp/child_fix_sh_timing.log
             - save_cache:
-                key: child-gems-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-{{ checksum "/tmp/.ruby-version" }} # yamllint disable-line rule:line-length
+                key: child-rbenv-v1-{{ checksum "{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}.gemspec" }}-{{ checksum "{{cookiecutter.project_slug}}/Gemfile" }}-{{ checksum "/tmp/.ruby-version" }} # yamllint disable-line rule:line-length
                 paths:
                   - "vendor/bundle"
                   - "/home/circleci/.cache/solargraph"
