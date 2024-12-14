@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # spec.add_runtime_dependency 'activesupport'
-{% if cookiecutter.use_checkoff == 'Yes' %}  spec.add_runtime_dependency 'redis'
+  # spec.add_dependency 'activesupport'
+{% if cookiecutter.use_checkoff == 'Yes' %}  spec.add_dependency 'redis'
 {% endif %}
 
   spec.metadata = {
