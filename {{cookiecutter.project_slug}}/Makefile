@@ -93,7 +93,7 @@ Gemfile.lock.installed: Gemfile {{cookiecutter.project_slug}}.gemspec vendor/.ke
 	touch Gemfile.lock.installed
 
 vendor/.keep: Gemfile.lock
-	make .bundle/config
+	make gem_dependencies
 	bundle install
 	touch vendor/.keep
 
