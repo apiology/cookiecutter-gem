@@ -282,11 +282,12 @@ jobs:
             # bundle exec needed for overcommit hooks
             #
             # if this step fails, check that
-            # https://app.circleci.com/settings/project/github/apiology/checkoff/ssh
+            # https://app.circleci.com/settings/project/github/apiology/{{cookiecutter.project_slug}}/ssh
             # includes a read-write 'user key':
-            bundle exec git push --set-upstream origin "${CIRCLE_BRANCH:?}"
+            SKIP=RakeTarget bundle exec git push --set-upstream origin "${CIRCLE_BRANCH:?}"
             git status
-            bundle exec rake release trigger_next_builds
+            make release
+            bundle exec rake trigger_next_builds
 
 workflows:
   version: 2

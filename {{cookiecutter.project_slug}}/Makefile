@@ -25,6 +25,9 @@ rbi/{{cookiecutter.project_slug}}.rbi: yardoc.installed ## Generate Sorbet types
 	rm -f rbi/{{cookiecutter.project_slug}}.rbi
 	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate rbi/{{cookiecutter.project_slug}}.rbi
 
+sig/{{cookiecutter.project_slug}.rbs: yardoc.installed ## Generate RBS file
+	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate sig/{{cookiecutter.project_slug}.rbs
+
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
 	bundle exec yard gems 2>&1 || bundle exec yard gems --safe 2>&1 || bundle exec yard gems 2>&1
 	# bundle exec solargraph scan 2>&1
@@ -135,8 +138,6 @@ rubocop-ratchet: rubocop ## Run rubocop and then ratchet numbers of errors in to
 	    git diff --exit-code .rubocop_todo.yml; \
 	fi
 
-test: spec ## run tests quickly
-
 spec: ## Run lower-level tests
 	@bundle exec rake spec
 
@@ -151,6 +152,9 @@ clean-coverage: clear_metrics ## Clean out previous output of test coverage to a
 coverage: test report-coverage ## check code coverage
 	@bundle exec rake undercover
 
+release: sig/{{cookiecutter.project_slug}.rbs rbi/{{cookiecutter.project_slug}.rbi ## Create a new release
+	bundle exec rake release
+
 report-coverage: test ## Report summary of coverage to stdout, and generate HTML, XML coverage report
 
 update_apt: .make/apt_updated
@@ -164,7 +168,7 @@ cicoverage: citest coverage ## check code coverage
 update_from_cookiecutter: ## Bring in changes from template project used to create this repo
 	bundle exec overcommit --uninstall
 	# cookiecutter_project_upgrader does its work in
-	# .git/cookiecutter/{{cookiecutter.project_slug}}, but RuboCop wants to inherit
+	# .git/cookiecutter/{{cookiecutter.project_slug}, but RuboCop wants to inherit
 	# config from all directories above it - avoid config
 	# mismatches by moving this out of the way
 	mv .rubocop.yml .rubocop-renamed.yml || true
