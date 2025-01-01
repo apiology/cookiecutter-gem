@@ -41,6 +41,8 @@ PreCommit:
     problem_on_unmodified_line: warn
   FixMe:
     enabled: true
+    exclude:
+      - 'sorbet/rbi/gems/*.rbi'
   PythonFlake8:
     enabled: true
     on_warn: fail
