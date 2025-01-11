@@ -21,8 +21,10 @@ PreCommit:
   # https://github.com/sds/overcommit/blob/master/config/default.yml
   BrokenSymlinks:
     enabled: true
-    description: 'Check for broken symlinks'
-    quiet: true
+  Fasterer:
+    enabled: true
+  BundleAudit:
+    enabled: true
   RuboCop:
     enabled: true
     command: ['bundle', 'exec', 'rubocop']
@@ -35,10 +37,12 @@ PreCommit:
       - '**/Rakefile'
       - 'bin/*'
       - 'exe/*'
+      - 'script/*'
     problem_on_unmodified_line: warn
+  FixMe:
+    enabled: true
     exclude:
-      - db/migrate/*.rb
-      - db/schema.rb
+      - 'sorbet/rbi/gems/*.rbi'
   PythonFlake8:
     enabled: true
     on_warn: fail
@@ -50,8 +54,11 @@ PreCommit:
       - '**/*.sh'
   YamlLint:
     enabled: true
-    flags: ['-c', '.yamllint.yml']
+    flags: ['-c', '.yamllint.yml', '--format=parsable', '--strict']
     on_warn: fail
+    exclude:
+      - '.rubocop_todo.yml' # generated
+      - 'sorbet/**/*' # generated
   CircleCi:
     required_executable: 'circleci'
     flags: ['config', 'validate']
@@ -62,13 +69,56 @@ PreCommit:
     enabled: true
     problem_on_unmodified_line: warn
     include:
-      - '**/*.rb'
+      # process first
+      - "config/annotations*.rb"
+      - "**/*.rb"
+      - "**/.*.rb"
+      - "lib/tasks/*.rake"
+      - ".git-hooks/**/*.rb"
+      - "script/*"
+      - "bin/*"
+      - "bin/overcommit_branch"
+    exclude:
+      # vendored
+      - 'bin/bundle'
+      - 'bin/brakeman'
+      - script/.rubocop.yml
+      - vendor/**/*
+      - spec/**/*
+      - feature/**/*
+      - ".bundle/**/*"
+      - ".markdownlint_style.rb"
+  Sorbet:
+    enabled: true
+    command: ['bin/srb-overcommit']
+    problem_on_unmodified_line: report
   Punchlist:
     command: ['bundle', 'exec', 'punchlist']
     enabled: true
     problem_on_unmodified_line: warn
+    exclude:
+      - 'sorbet/**/*'
+
+PostCheckout:
+  BundleInstall:
+    enabled: true
+
+PostCommit:
+  BundleInstall:
+    enabled: true
+
+PostMerge:
+  BundleInstall:
+    enabled: true
+
+PostRewrite:
+  BundleInstall:
+    enabled: true
 
 PrePush:
+  Brakeman:
+    enabled: true
+    flags: ['--exit-on-warn', '--quiet', '--summary', '--force']
   RakeTarget:
     enabled: true
     command: ['bundle', 'exec', 'rake']

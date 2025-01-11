@@ -15,16 +15,23 @@ Gem::Specification.new do |spec|
   spec.license       = '{{ cookiecutter.open_source_license }}'
   spec.required_ruby_version = '>= 3.0'
 
-  spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject do |f|
-      f.match(%r{^(test|spec|features)/})
-    end
-  end
+  spec.files         = Dir['README.md',
+                           'Rakefile',
+                           'lib/{{cookiecutter.project_slug}}.rb',
+                           '{lib}/**/*',
+                           'sig/**/*.rbs',
+                           'sig/*.rbs',
+                           'rbi/**/*.rbi',
+                           'rbi/*.rbi',
+                           '{exe}/*',
+                           '{{cookiecutter.project_slug}}.gemspec']
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # spec.add_runtime_dependency 'activesupport'
+  # spec.add_dependency 'activesupport'
+{% if cookiecutter.use_checkoff == 'Yes' %}  spec.add_dependency 'redis'
+{% endif %}
 
   spec.metadata = {
     'rubygems_mfa_required' => 'true',

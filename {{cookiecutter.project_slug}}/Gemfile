@@ -1,30 +1,64 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
+source "https://rubygems.org"
 
 # Specify your gem's dependencies in {{ cookiecutter.project_slug }}.gemspec
 gemspec
 
-gem 'bump'
-gem 'bundler'
-gem 'fakeweb'
-gem 'mdl'
-# 0.58.0 and 0.57.0 don't seem super compatible with signatures, and
-# magit doesn't seem to want to use the bundled version at the moment,
-# so let's favor the more recent version...
-gem 'overcommit', ['>=0.60.0', '<0.61.0']
-gem 'pry'
-gem 'punchlist'
-gem 'rake', '~> 13.0'
-gem 'rspec', '>=3.4'
-gem 'rubocop', ['~> 1.52']
-gem 'rubocop-rake'
-# ensure version with RSpec/VerifiedDoubleReference
-gem 'rubocop-rspec', ['>=2.10.0']
-# ensure version with branch coverage
-gem 'simplecov', ['>=0.18.0']
-gem 'simplecov-lcov'
-gem 'solargraph', ['>=0.49.0']
-gem 'undercover'
-gem 'webmock'
-gem 'yard'
+group :development, :test do
+  gem "bundler"
+  gem "mdl"
+  gem "parlour", [">=5.0.0"]
+  # ensure recent definitions
+  gem "rbs", [">=3.8.1"]
+  gem "rspec"
+  gem "sord", [">=6.0.0"]
+  # ensure version with branch coverage
+  gem "simplecov", [">=0.18.0"]
+  gem "simplecov-lcov"
+  gem "tapioca", require: false
+  gem "undercover"
+  gem "webmock"
+end
+
+group :development do
+  gem "brakeman"
+  gem "bump"
+  gem "bundle-audit"
+  gem "fasterer"
+  gem "overcommit", [">=0.64.0", "<0.65.0"]
+  gem "punchlist", [">=1.3.1"]
+  gem "rubocop", ["~> 1.52"]
+  gem "rubocop-performance"
+  gem "rubocop-rake"
+  # ensure version with RSpec/VerifiedDoubleReference
+  gem "rubocop-rspec", [">=2.10.0"]
+  # https://github.com/castwide/solargraph/pull/727
+  # gem "solargraph", [">=0.50.0"]
+  gem "solargraph",
+      git: "https://github.com/apiology/solargraph",
+      branch: "rbs"
+  gem "yard"
+end
+
+{% if cookiecutter.use_checkoff == 'Yes' %}# ruby-asana gem is pending key bugfixes for checkoff as of
+# 2021-07-29:
+#
+# See
+#  https://github.com/Asana/ruby-asana/issues/109
+#  https://github.com/Asana/ruby-asana/issues/110
+#
+gem "asana",
+    git: "https://github.com/apiology/ruby-asana",
+    branch: "checkoff_fixes"
+#   path: "/Users/broz/src/ruby-asana"
+# Awaiting merge and release of
+# https://github.com/seamusabshere/cache_method/pull/18
+gem "cache_method",
+    git: "https://github.com/apiology/cache_method",
+    branch: "ruby_3_support"
+gem "checkoff" # , path: "/Users/broz/src/checkoff"
+{% endif %}gem 'pry'
+gem 'rake'
+{% if cookiecutter.use_checkoff == 'Yes' %}gem "redis"{% endif %}
+gem "yard"
