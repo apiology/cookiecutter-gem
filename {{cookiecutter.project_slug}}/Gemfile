@@ -61,4 +61,3 @@ gem "checkoff" # , path: "/Users/broz/src/checkoff"
 {% endif %}gem 'pry'
 gem 'rake'
 {% if cookiecutter.use_checkoff == 'Yes' %}gem "redis"{% endif %}
-gem "yard"

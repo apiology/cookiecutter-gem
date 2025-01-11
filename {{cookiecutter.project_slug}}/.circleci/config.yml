@@ -58,7 +58,7 @@ commands:
       - restore_cache:
           name: Restore ruby-types cache
           keys:
-            - ruby-types-v1-{% raw %}{{ checksum {% endraw %}"{{cookiecutter.project_slug}}.gemspec" {% raw %}}}{% endraw %}-{% raw %}{{ checksum "Gemfile" }}{% endraw %}-{% raw %}{{ checksum "Gemfile.lock" }}{% endraw %}-
+            - ruby-types-v1-{% raw %}{{ checksum {% endraw %}"{{cookiecutter.project_slug}}.gemspec" {% raw %}}}{% endraw %}-{% raw %}{{ checksum "Gemfile" }}{% endraw %}-{% raw %}{{ checksum "Gemfile.lock" }}{% endraw %}- # yamllint disable-line rule:line-length
             - ruby-types-v1-{% raw %}{{ checksum {% endraw %}"{{cookiecutter.project_slug}}.gemspec" {% raw %}}}{% endraw %}-{% raw %}{{ checksum "Gemfile" }}{% endraw %}-
             - ruby-types-v1-{% raw %}{{ checksum {% endraw %}"{{cookiecutter.project_slug}}.gemspec" {% raw %}}}{% endraw %}-
             - ruby-types-v1-
