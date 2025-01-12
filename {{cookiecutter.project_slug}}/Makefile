@@ -1,4 +1,4 @@
-.PHONY: build build-typecheck bundle_install cicoverage citypecheck citest citypecoverage clean clean-coverage clean-typecheck clean-typecoverage coverage default feature gem_dependencies help localtest overcommit quality repl report-coverage rubocop rubocop-ratchet spec test typecheck typecoverage update_from_cookiecutter
+.PHONY: build build-typecheck bundle_install cicoverage citypecheck citest citypecoverage clean clean-coverage clean-typecheck clean-typecoverage coverage default feature gem_dependencies help overcommit quality repl report-coverage rubocop rubocop-ratchet spec test typecheck typecoverage update_from_cookiecutter
 .DEFAULT_GOAL := default
 
 define PRINT_HELP_PYSCRIPT
@@ -27,13 +27,19 @@ start: ## run code continously and watch files for changes
 
 rbi/{{cookiecutter.project_slug}}.rbi: yardoc.installed ## Generate Sorbet types from Yard docs
 	rm -f rbi/{{cookiecutter.project_slug}}.rbi
-	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate rbi/{{cookiecutter.project_slug}}.rbi
+	bin/sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate rbi/{{cookiecutter.project_slug}}.rbi
 
 sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed ## Generate RBS file
 	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate sig/{{cookiecutter.project_slug}}.rbs
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
-	bundle exec yard gems 2>&1 || bundle exec yard gems --safe 2>&1 || bundle exec yard gems 2>&1
+	bin/yard gems 2>&1 || bin/yard gems --safe 2>&1 || bin/yard gems 2>&1
+	# bin/solargraph scan 2>&1
+	bin/spoom srb bump || true
+	# spoom rudely updates timestamps on files, so let's keep up by
+	# touching yardoc.installed so we don't end up in a vicious
+	# cycle
+	touch yardoc.installed rbi/{{cookiecutter.project_slug}}.rbi
 	# bundle exec solargraph scan 2>&1
 	touch types.installed
 
@@ -44,7 +50,9 @@ sorbet/machine_specific_config:
 
 build-typecheck: Gemfile.lock.installed types.installed  ## Fetch information that type checking depends on
 
-sorbet/tapioca/require.rb: sorbet/machine_specific_config
+# Only create this once, so no dependencies
+sorbet/tapioca/require.rb:
+	make sorbet/machine_specific_config vendor/.keep
 	bin/tapioca init
 
 tapioca.installed: sorbet/machine_specific_config sorbet/tapioca/require.rb Gemfile.lock.installed ## Install Tapioca-generated type information
@@ -52,7 +60,6 @@ tapioca.installed: sorbet/machine_specific_config sorbet/tapioca/require.rb Gemf
 	bin/tapioca annotations
 #	bin/tapioca dsl
 	bin/tapioca todo
-	bin/spoom srb bump
 	touch tapioca.installed
 
 yardoc.installed: $(wildcard config/annotations_*.rb) $(SOURCE_FILES) ## Generate YARD documentation
@@ -78,13 +85,15 @@ typecheck: build-typecheck ## validate types in code and configuration
 	bin/srb tc
 	bin/solargraph typecheck --level strong
 
-citypecheck: typecheck ## Run type check from CircleCI
+citypecheck: ## Run type check from CircleCI
+	bin/srb tc
+	bin/solargraph typecheck --level strong
 
 typecoverage: typecheck ## Run type checking and then ratchet coverage in metrics/
 
 clean-typecoverage: ## Clean out type-related coverage previous results to avoid flaky results
 
-citypecoverage: typecoverage ## Run type checking, ratchet coverage, and then complain if ratchet needs to be committed
+citypecoverage: citypecheck ## Run type checking, ratchet coverage, and then complain if ratchet needs to be committed
 
 config/env: config/env.1p  ## Create file suitable for docker-compose usage
 	cat config/env.1p | cut -d= -f1 > config/env
@@ -95,7 +104,7 @@ requirements_dev.txt.installed: requirements_dev.txt
 
 pip_install: requirements_dev.txt.installed ## Install Python dependencies
 
-Gemfile.lock: Gemfile {{cookiecutter.project_slug}}.gemspec
+Gemfile.lock: Gemfile {{cookiecutter.project_slug}}.gemspec .bundle/config
 	bundle lock
 
 .bundle/config:
@@ -117,7 +126,7 @@ vendor/.keep: Gemfile.lock
 bundle_install: Gemfile.lock.installed ## Install Ruby dependencies
 
 clear_metrics: ## remove or reset result artifacts created by tests and quality tools
-	bundle exec rake clear_metrics || true
+	bin/rake clear_metrics || true
 
 clean: clear_metrics clean-typecoverage clean-typecheck clean-coverage ## remove all built artifacts
 
@@ -126,18 +135,18 @@ test: spec feature ## run tests quickly
 citest: test ## Run unit tests from CircleCI
 
 overcommit: ## run precommit quality checks
-	bundle exec overcommit --run
+	bin/overcommit --run
 
 overcommit_branch: ## run precommit quality checks only on changed files
-	@bundle exec overcommit_branch
+	@bin/overcommit_branch
 
 quality: overcommit ## run precommit quality checks
 
 rubocop: ## Run rubocop
-	@bundle exec rubocop
+	@bin/rubocop
 
 rubocop-ratchet: rubocop ## Run rubocop and then ratchet numbers of errors in todo file
-	@bundle exec rubocop --regenerate-todo --no-exclude-limit --auto-gen-only-exclude --no-auto-gen-timestamp
+	@bin/rubocop --regenerate-todo --no-exclude-limit --auto-gen-only-exclude --no-auto-gen-timestamp
 	@if [ -f .rubocop_todo.yml ]; \
 	  then \
 	    git diff --exit-code .rubocop.yml; \
@@ -145,18 +154,18 @@ rubocop-ratchet: rubocop ## Run rubocop and then ratchet numbers of errors in to
 	fi
 
 spec: ## Run lower-level tests
-	@bundle exec rake spec
+	@bin/rake spec
 
 feature: ## Run higher-level tests
-	@bundle exec rake feature
+	@bin/rake feature
 
 repl: bundle_install ## Launch an interactive development shell
-	@bundle exec rake repl
+	@bin/rake repl
 
 clean-coverage: clear_metrics ## Clean out previous output of test coverage to avoid flaky results from previous runs
 
 coverage: test report-coverage ## check code coverage
-	@bundle exec rake undercover
+	@bin/rake undercover
 
 release: sig/{{cookiecutter.project_slug}}.rbs rbi/{{cookiecutter.project_slug}}.rbi ## Create a new release
 	bundle exec rake release
@@ -172,7 +181,7 @@ update_apt: .make/apt_updated
 cicoverage: citest coverage ## check code coverage
 
 update_from_cookiecutter: ## Bring in changes from template project used to create this repo
-	bundle exec overcommit --uninstall
+	bin/overcommit --uninstall
 	# cookiecutter_project_upgrader does its work in
 	# .git/cookiecutter/{{cookiecutter.project_slug}}, but RuboCop wants to inherit
 	# config from all directories above it - avoid config
@@ -189,7 +198,8 @@ update_from_cookiecutter: ## Bring in changes from template project used to crea
 	# update frequently security-flagged gems while we're here
 	bundle update --conservative json rexml yard || true
 	( make build && git add Gemfile.lock ) || true
-	bundle exec overcommit --install || true
+	bin/spoom srb bump || true
+	bin/overcommit --install || true
 	@echo
 	@echo "Please resolve any merge conflicts below and push up a PR with:"
 	@echo
