@@ -27,7 +27,7 @@ start: ## run code continously and watch files for changes
 
 rbi/{{cookiecutter.project_slug}}.rbi: yardoc.installed ## Generate Sorbet types from Yard docs
 	rm -f rbi/{{cookiecutter.project_slug}}.rbi
-	bin/sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate rbi/{{cookiecutter.project_slug}}.rbi
+	bin/sord gen --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate rbi/{{cookiecutter.project_slug}}.rbi
 
 sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed ## Generate RBS file
 	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate sig/{{cookiecutter.project_slug}}.rbs
@@ -48,22 +48,25 @@ build: bundle_install pip_install build-typecheck ## Update 3rd party packages a
 sorbet/machine_specific_config:
 	echo "--cache-dir=$$HOME/.sorbet-cache" > sorbet/machine_specific_config
 
-build-typecheck: Gemfile.lock.installed types.installed  ## Fetch information that type checking depends on
+sorbet/rbi/todo.rbi: rbi/{{cookiecutter.project_slug}}.rbi tapioca.installed
+	bin/tapioca todo
+
+build-typecheck: Gemfile.lock.installed types.installed sorbet/machine_specific_config sorbet/rbi/todo.rbi ## Fetch information that type checking depends on
 
 # Only create this once, so no dependencies
 sorbet/tapioca/require.rb:
 	make sorbet/machine_specific_config vendor/.keep
 	bin/tapioca init
 
-tapioca.installed: sorbet/machine_specific_config sorbet/tapioca/require.rb Gemfile.lock.installed ## Install Tapioca-generated type information
+tapioca.installed: sorbet/tapioca/require.rb Gemfile.lock.installed ## Install Tapioca-generated type information
+	make sorbet/machine_specific_config
 	bin/tapioca gems
 	bin/tapioca annotations
 #	bin/tapioca dsl
-	bin/tapioca todo
 	touch tapioca.installed
 
 yardoc.installed: $(wildcard config/annotations_*.rb) $(SOURCE_FILES) ## Generate YARD documentation
-	bin/yard doc $?
+	bin/yard doc -c .yardoc $^
 	touch yardoc.installed
 
 clean-typecheck: ## Refresh the easily-regenerated information that type checking depends on
@@ -79,13 +82,12 @@ realclean-typecheck: clean-typecheck ## Remove all type checking artifacts
 realclean: clean realclean-typecheck
 	rm -fr vendor/bundle .bundle
 	rm -f .make/*
-	rm -f *.installed
 
 typecheck: build-typecheck ## validate types in code and configuration
 	bin/srb tc
 	bin/solargraph typecheck --level strong
 
-citypecheck: ## Run type check from CircleCI
+citypecheck: build-typecheck ## Run type check from CircleCI
 	bin/srb tc
 	bin/solargraph typecheck --level strong
 
