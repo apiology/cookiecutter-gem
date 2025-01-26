@@ -1,4 +1,4 @@
-.PHONY: build build-typecheck bundle_install cicoverage citypecheck citest citypecoverage clean clean-build clean-coverage clean-pyc clean-typecheck clean-typecoverage coverage default gem_dependencies help overcommit quality test typecheck typecoverage update_from_cookiecutter
+.PHONY: build build-typecheck bundle_install cicoverage citypecheck citest citypecoverage clean clean-build clean-coverage clean-pyc clean-typecheck clean-typecoverage coverage default gem_dependencies help overcommit quality repl test typecheck typecoverage update_from_cookiecutter
 .DEFAULT_GOAL := default
 
 define PRINT_HELP_PYSCRIPT
@@ -158,8 +158,8 @@ update_apt: .make/apt_updated
 cicoverage: citest ## check code coverage
 
 update_from_cookiecutter: ## Bring in changes from template project used to create this repo
-	bundle exec overcommit --uninstall
-	git checkout main; overcommit --sign && overcommit --sign pre-commit && git checkout main && git pull && git checkout -b update-from-upstream-cookiecutter-$$(date +%Y-%m-%d-%H%M)
+	bin/overcommit --uninstall
+	git checkout main; overcommit --sign && overcommit --sign pre-commit && overcommit --sign pre-push && git checkout main && git pull && git checkout -b update-from-cookiecutter-$$(date +%Y-%m-%d-%H%M)
 	git fetch cookiecutter-upstream
 	git fetch -a
 	git merge cookiecutter-upstream/main --allow-unrelated-histories || true
