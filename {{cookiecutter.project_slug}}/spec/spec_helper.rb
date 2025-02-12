@@ -1,8 +1,8 @@
 # frozen_string_literal: true
+# typed: false
 {% if cookiecutter.use_checkoff == 'Yes' %}
 # @sg-ignore
 ENV['REDIS_HOSTNAME'] = 'deactivated-anyway'{% endif %}
-
 require 'simplecov'
 require 'simplecov-lcov'
 
@@ -47,7 +47,6 @@ RSpec.configure do |config|
     log_messages = capture_logs do
       example.run
     end
-
   ensure
     # ideally this would be stashed somewhere and retrieved in the
     # reporter so that these appear directly in the failure message
