@@ -36,12 +36,13 @@ rbi/{{cookiecutter.project_slug}}.rbi: tapioca.installed yardoc.installed sorbet
 	sed -i.bak -e 's/^# typed: strong/# typed: true/' rbi/{{cookiecutter.project_slug}}.rbi
 	rm -f rbi/{{cookiecutter.project_slug}}.rbi.bak
 
+sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed ## Generate RBS file
+	rm -f rbi/{{cookiecutter.project_slug}}.rbs
+	bin/sord gen $(SORD_GEN_OPTIONS) sig/{{cookiecutter.project_slug}}.rbs
+
 YARD_PLUGIN_OPTS = --plugin yard-sorbet
 
 YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace
-
-sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed ## Generate RBS file
-	bundle exec sord --replace-errors-with-untyped --exclude-messages OMIT --no-regenerate sig/{{cookiecutter.project_slug}}.rbs
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
 	bin/yard gems $(YARD_PLUGIN_OPTS) 2>&1 || bin/yard gems --safe $(YARD_PLUGIN_OPTS) 2>&1 || bin/yard gems $(YARD_PLUGIN_OPTS) 2>&1
