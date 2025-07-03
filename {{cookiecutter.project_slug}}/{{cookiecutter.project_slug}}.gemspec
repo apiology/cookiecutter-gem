@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "{{ cookiecutter.project_short_description.replace('\"', '\\\"') }}"
   spec.homepage      = 'https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}'
   spec.license       = '{{ cookiecutter.open_source_license }}'
-  spec.required_ruby_version = '>= 3.0'
+  spec.required_ruby_version = '>= 3.2'
 
   spec.files         = Dir['README.md',
                            'Rakefile',
