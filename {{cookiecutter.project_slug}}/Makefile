@@ -90,8 +90,8 @@ docs: ## Generate YARD documentation
 clean-typecheck: ## Refresh the easily-regenerated information that type checking depends on
 	bin/solargraph clear || true
 	rm -fr .yardoc/ rbi/{{cookiecutter.project_slug}}.rbi types.installed yardoc.installed sig/{{cookiecutter.project_slug}}.rbs || true
-	rm -fr ../{{cookiecutter.project_slug}}/.yardoc || true
-{% if cookiecutter.use_checkoff %}	rm -fr ../checkoff/.yardoc || true
+	rm -fr .yardoc/ rbi/{{cookiecutter.project_slug}}.rbi types.installed yardoc.installed sig/{{cookiecutter.project_slug}}.rbs || true
+{% if cookiecutter.use_checkoff %}	rm -fr ../{{cookiecutter.project_slug}}/.yardoc || true
 {% endif %}	echo all clear
 
 realclean-typecheck: clean-typecheck ## Remove all type checking artifacts
@@ -122,9 +122,18 @@ solargraph-strict: build-typecheck ## Run Solargraph typechecker
 solargraph-strong: build-typecheck ## Run Solargraph typechecker
 	bin/solargraph typecheck --level strong
 
-typecheck: build-typecheck srb solargraph ## validate types in code and configuration
+solargraph-normal: build-typecheck ## Run Solargraph typechecker
+	bin/solargraph typecheck --level normal
 
-citypecheck: build-typecheck srb solargraph ## Run type check from CircleCI
+solargraph-typed: build-typecheck ## Run Solargraph typechecker
+	bin/solargraph typecheck --level typed
+
+solargraph-strict: build-typecheck ## Run Solargraph typechecker
+	bin/solargraph typecheck --level strict
+
+typecheck: build-typecheck srb solargraph  ## validate types in code and configuration
+
+citypecheck: build-typecheck srb solargraph  ## Run type check from CircleCI
 
 typecoverage: typecheck ## Run type checking and then ratchet coverage in metrics/
 
