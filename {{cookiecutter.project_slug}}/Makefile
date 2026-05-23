@@ -43,7 +43,7 @@ sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed gem_rbs_collection/.keep
 
 YARD_PLUGIN_OPTS = --plugin yard-sorbet --plugin yard-solargraph
 
-YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' '{lib,app,test}/**/*.rb' 'ext/**/*.{c,rb}'
+YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' '{lib,app,spec,feature}/**/*.rb' 'ext/**/*.{c,rb}'
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
 	bin/solargraph gems
@@ -71,8 +71,8 @@ rbs_collection.lock.yaml: Gemfile.lock rbs_collection.yaml
 	bin/rbs collection update
 	touch rbs_collection.lock.yaml
 
-rbs_collection.yaml:
-	bin/rbs collection init
+rbs_collection.yaml: Gemfile.lock.installed
+	@if [ ! -f rbs_collection.yaml ]; then bin/rbs collection init; fi
 
 .gem_rbs_collection/.keepme: rbs_collection.lock.yaml
 	# Ensure that the gem rbs collection is installed
@@ -137,15 +137,6 @@ solargraph-strict: build-typecheck ## Run Solargraph typechecker
 
 solargraph-strong: build-typecheck ## Run Solargraph typechecker
 	bin/solargraph typecheck --level strong
-
-solargraph-normal: build-typecheck ## Run Solargraph typechecker
-	bin/solargraph typecheck --level normal
-
-solargraph-typed: build-typecheck ## Run Solargraph typechecker
-	bin/solargraph typecheck --level typed
-
-solargraph-strict: build-typecheck ## Run Solargraph typechecker
-	bin/solargraph typecheck --level strict
 
 typecheck: build-typecheck srb solargraph  ## validate types in code and configuration
 
