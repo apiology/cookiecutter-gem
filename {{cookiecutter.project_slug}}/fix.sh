@@ -147,7 +147,7 @@ ensure_ruby_versions() {
 
   # You can find out which feature versions are still supported / have
   # been release here: https://www.ruby-lang.org/en/downloads/
-  ruby_versions="$(latest_ruby_version 3.2)"
+  ruby_versions="$(latest_ruby_version 3.3)"
 
   installed_ruby_versions="$(rbenv versions --bare --skip-aliases)"
 
@@ -182,7 +182,7 @@ ensure_bundle() {
   # if bundler_version is still empty
   if [ -z "${bundler_version}" ]
   then
-      gem install bundler
+      gem install bundler:2.5.5
       bundler_version=$(bundle --version | cut -d ' ' -f 3)
   fi
   echo "Bundler version: ${bundler_version}"
@@ -194,8 +194,6 @@ ensure_bundle() {
   #
   # https://app.circleci.com/pipelines/github/apiology/checkoff/1281/workflows/f667f909-c3fc-4ae2-8593-dde2b588a7a7/jobs/2491
 
-  # Version <2.2.22 of bundler isn't compatible with Ruby 3.3:
-  #
   # Version <2.2.9 doesn't seem to handle git branches during 'bundle lock' in some situations
   #
   # https://stackoverflow.com/questions/70800753/rails-calling-didyoumeanspell-checkers-mergeerror-name-spell-checker-h
@@ -449,31 +447,6 @@ ensure_overcommit() {
   fi
 }
 
-ensure_rugged_packages_installed() {
-  # only needed if we don't already have rugged installed
-  if ! ls vendor/bundle/ruby/*/gems/rugged-* &>/dev/null
-  then
-    echo "Current directory"
-    pwd
-    echo "Vendor dir"
-    ls -l vendor || true
-    echo "List of vendor/bundle/gems:"
-    ls vendor/bundle/gems || true
-    echo "Did not find rugged gem installed; installing packages needed for rugged"
-    echo "Installed gems:"
-    gem list
-    echo "Gem environment:"
-    gem environment
-    echo "Bundle list:"
-    bundle list || true
-    ensure_binary_library libicuio icu4c libicu-dev # needed by rugged, needed by undercover
-    ensure_package pkg-config # needed by rugged, needed by undercover
-    ensure_package cmake # needed by rugged, needed by undercover
-  fi
-}
-
-ensure_rbenv
-
 ensure_types_built() {
   make build-typecheck
 }
@@ -483,8 +456,6 @@ ensure_hooks_path
 ensure_ruby_versions
 
 set_ruby_local_version
-
-ensure_rugged_packages_installed
 
 ensure_bundle
 
