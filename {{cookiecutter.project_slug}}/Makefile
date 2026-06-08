@@ -81,8 +81,8 @@ rbs_collection.lock.yaml: Gemfile.lock rbs_collection.yaml
 	bin/rbs collection update
 	touch rbs_collection.lock.yaml
 
-rbs_collection.yaml:
-	bin/rbs collection init
+rbs_collection.yaml: Gemfile.lock.installed
+	@if [ ! -f rbs_collection.yaml ]; then bin/rbs collection init; fi
 
 .gem_rbs_collection/.keepme: rbs_collection.lock.yaml
 	# Ensure that the gem rbs collection is installed
@@ -104,7 +104,7 @@ tapioca.installed: sorbet/tapioca/require.rb Gemfile.lock.installed ## Install T
 #	bin/tapioca dsl
 	touch tapioca.installed
 
-yardoc.installed: Makefile $(SOURCE_FILES) ## Generate YARD documentation
+yardoc.installed: Makefile $(wildcard config/annotations_*.rb) $(SOURCE_FILES) ## Generate YARD documentation
 	bin/yard doc $(YARD_OPTS)
 	touch yardoc.installed
 
@@ -115,7 +115,8 @@ docs: ## Generate YARD documentation
 
 clean-typecheck: ## Refresh the easily-regenerated information that type checking depends on
 	rm -fr .yardoc/ rbi/{{cookiecutter.project_slug}}.rbi types.installed yardoc.installed sig/{{cookiecutter.project_slug}}.rbs || true
-	echo all clear
+{% if cookiecutter.use_checkoff %}	rm -fr ../checkoff/.yardoc || true
+{% endif %}	echo all clear
 
 realclean-typecheck: clean-typecheck ## Remove all type checking artifacts
 	bin/solargraph clear || true
@@ -184,6 +185,7 @@ gem_dependencies: .bundle/config
 # Ensure any Gemfile.lock changes, even pulled from git, ensure a
 # bundle is installed.
 Gemfile.lock.installed: Gemfile {{cookiecutter.project_slug}}.gemspec vendor/.keep
+	bundle install
 	touch Gemfile.lock.installed
 
 vendor/.keep: Gemfile.lock .ruby-version
