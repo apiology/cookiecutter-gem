@@ -33,17 +33,27 @@ rbi/{{cookiecutter.project_slug}}.rbi: tapioca.installed yardoc.installed sorbet
 	bin/sord gen $(SORD_GEN_OPTIONS) rbi/{{cookiecutter.project_slug}}-sord.rbi # YARD to RBI
 	cat rbi/{{cookiecutter.project_slug}}-parlour.rbi rbi/{{cookiecutter.project_slug}}-sord.rbi > rbi/{{cookiecutter.project_slug}}.rbi
 	rm -f rbi/{{cookiecutter.project_slug}}-sord.rbi rbi/{{cookiecutter.project_slug}}-parlour.rbi
-#	sed -i.bak -e 's/^# typed: strong/# typed: ignore/' rbi/{{cookiecutter.project_slug}}.rbi
+	sed -i.bak -e 's/^# typed: strong/# typed: ignore/' rbi/{{cookiecutter.project_slug}}.rbi
 	rm -f rbi/{{cookiecutter.project_slug}}.rbi.bak
 	touch rbi/{{cookiecutter.project_slug}}.rbi
 
 sig/{{cookiecutter.project_slug}}.rbs: yardoc.installed .gem_rbs_collection/.keepme ## Generate RBS file
-	rm -f rbi/{{cookiecutter.project_slug}}.rbs
+	rm -f sig/{{cookiecutter.project_slug}}.rbs
 	bin/sord gen $(SORD_GEN_OPTIONS) sig/{{cookiecutter.project_slug}}.rbs # YARD to RBS
 
 YARD_PLUGIN_OPTS = --plugin yard-sorbet --plugin yard-solargraph
 
-YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' '{lib,app,spec,feature}/**/*.rb' 'ext/**/*.{c,rb}'
+# IMPORTANT: if you change the source globs/excludes below, bump the
+# ruby-types-vN- cache prefix in .circleci/config.yml.
+#
+# YARD's .yardoc database (cached in CI) is incremental and additive: it
+# never drops objects for files that leave the source set, so a database
+# built under one set of YARD_OPTS stays contaminated for those files
+# forever once restored.  CI fallback cache keys omit the Makefile
+# checksum, so a Makefile change alone will still restore the old
+# .yardoc.  Bumping the cache prefix forces a clean rebuild and avoids
+# shipping stale types (e.g. test-only constants) in sig/rbi.
+YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' --exclude '^spec/' --exclude '^feature/' '{lib,app}/**/*.rb' 'ext/**/*.{c,rb}'
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
 	bin/solargraph gems
@@ -71,8 +81,8 @@ rbs_collection.lock.yaml: Gemfile.lock rbs_collection.yaml
 	bin/rbs collection update
 	touch rbs_collection.lock.yaml
 
-rbs_collection.yaml: Gemfile.lock.installed
-	@if [ ! -f rbs_collection.yaml ]; then bin/rbs collection init; fi
+rbs_collection.yaml:
+	bin/rbs collection init
 
 .gem_rbs_collection/.keepme: rbs_collection.lock.yaml
 	# Ensure that the gem rbs collection is installed
@@ -94,7 +104,7 @@ tapioca.installed: sorbet/tapioca/require.rb Gemfile.lock.installed ## Install T
 #	bin/tapioca dsl
 	touch tapioca.installed
 
-yardoc.installed: Makefile $(wildcard config/annotations_*.rb) $(SOURCE_FILES) ## Generate YARD documentation
+yardoc.installed: Makefile $(SOURCE_FILES) ## Generate YARD documentation
 	bin/yard doc $(YARD_OPTS)
 	touch yardoc.installed
 
@@ -105,8 +115,7 @@ docs: ## Generate YARD documentation
 
 clean-typecheck: ## Refresh the easily-regenerated information that type checking depends on
 	rm -fr .yardoc/ rbi/{{cookiecutter.project_slug}}.rbi types.installed yardoc.installed sig/{{cookiecutter.project_slug}}.rbs || true
-{% if cookiecutter.use_checkoff %}	rm -fr ../checkoff/.yardoc || true
-{% endif %}	echo all clear
+	echo all clear
 
 realclean-typecheck: clean-typecheck ## Remove all type checking artifacts
 	bin/solargraph clear || true
@@ -175,7 +184,6 @@ gem_dependencies: .bundle/config
 # Ensure any Gemfile.lock changes, even pulled from git, ensure a
 # bundle is installed.
 Gemfile.lock.installed: Gemfile {{cookiecutter.project_slug}}.gemspec vendor/.keep
-	bundle install
 	touch Gemfile.lock.installed
 
 vendor/.keep: Gemfile.lock .ruby-version
@@ -228,7 +236,7 @@ coverage: test report-coverage ## check code coverage
 	@bin/rake undercover
 
 release: sig/{{cookiecutter.project_slug}}.rbs rbi/{{cookiecutter.project_slug}}.rbi ## Create a new release
-	bundle exec rake release
+	bin/rake release
 
 report-coverage: test ## Report summary of coverage to stdout, and generate HTML, XML coverage report
 
