@@ -52,7 +52,7 @@ YARD_PLUGIN_OPTS = --plugin yard-sorbet --plugin yard-solargraph
 # forever once restored.  CI fallback cache keys omit the Makefile
 # checksum, so a Makefile change alone will still restore the old
 # .yardoc.  Bumping the cache prefix forces a clean rebuild and avoids
-# shipping stale types (e.g. test-only constants) in sig/rbi.
+# shipping stale types (e.g. test-only TestDate/TestTasks) in sig/rbi.
 YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' --exclude '^spec/' --exclude '^feature/' '{lib,app}/**/*.rb' 'ext/**/*.{c,rb}'
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
@@ -81,8 +81,8 @@ rbs_collection.lock.yaml: Gemfile.lock rbs_collection.yaml
 	bin/rbs collection update
 	touch rbs_collection.lock.yaml
 
-rbs_collection.yaml: Gemfile.lock.installed
-	@if [ ! -f rbs_collection.yaml ]; then bin/rbs collection init; fi
+rbs_collection.yaml:
+	bin/rbs collection init
 
 .gem_rbs_collection/.keepme: rbs_collection.lock.yaml
 	# Ensure that the gem rbs collection is installed
@@ -148,7 +148,7 @@ solargraph-strict: build-typecheck ## Run Solargraph typechecker
 solargraph-strong: build-typecheck ## Run Solargraph typechecker
 	bin/solargraph typecheck --level strong
 
-typecheck: build-typecheck srb solargraph  ## validate types in code and configuration
+typecheck: build-typecheck srb solargraph ## validate types in code and configuration
 
 citypecheck: ci-build-typecheck srb ci-solargraph ## Run type check from CircleCI
 
@@ -170,7 +170,7 @@ requirements_dev.txt.installed: requirements_dev.txt
 
 pip_install: requirements_dev.txt.installed ## Install Python dependencies
 
-Gemfile.lock: Gemfile {{cookiecutter.project_slug}}.gemspec .bundle/config
+Gemfile.lock: Gemfile .bundle/config
 	if [ ! -f Gemfile.lock ]; then \
 	  bundle install; \
 	else \
@@ -184,7 +184,7 @@ gem_dependencies: .bundle/config
 
 # Ensure any Gemfile.lock changes, even pulled from git, ensure a
 # bundle is installed.
-Gemfile.lock.installed: Gemfile {{cookiecutter.project_slug}}.gemspec vendor/.keep
+Gemfile.lock.installed: Gemfile vendor/.keep
 	bundle install
 	touch Gemfile.lock.installed
 
@@ -236,9 +236,6 @@ clean-coverage: clear_metrics ## Clean out previous output of test coverage to a
 
 coverage: test report-coverage ## check code coverage
 	@bin/rake undercover
-
-release: sig/{{cookiecutter.project_slug}}.rbs rbi/{{cookiecutter.project_slug}}.rbi ## Create a new release
-	bin/rake release
 
 report-coverage: test ## Report summary of coverage to stdout, and generate HTML, XML coverage report
 
