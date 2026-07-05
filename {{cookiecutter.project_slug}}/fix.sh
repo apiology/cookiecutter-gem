@@ -175,6 +175,8 @@ ensure_bundle() {
   # https://app.circleci.com/pipelines/github/apiology/source_finder/21/workflows/88db659f-a4f4-4751-abc0-46f5929d8e58/jobs/107
   set_rbenv_env_variables
 
+  ensure_dev_library yaml.h libyaml libyaml-dev
+
   bundler_version=$(ruby -e 'require "rubygems/bundler_version_finder"; puts Gem::BundlerVersionFinder.bundler_version')
   # if bundler_version is empty
   if [ -z "${bundler_version}" ]
