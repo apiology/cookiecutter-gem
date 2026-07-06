@@ -81,8 +81,8 @@ rbs_collection.lock.yaml: Gemfile.lock rbs_collection.yaml
 	bin/rbs collection update
 	touch rbs_collection.lock.yaml
 
-rbs_collection.yaml:
-	bin/rbs collection init
+rbs_collection.yaml: Gemfile.lock.installed
+	@if [ ! -f rbs_collection.yaml ]; then bin/rbs collection init; fi
 
 .gem_rbs_collection/.keepme: rbs_collection.lock.yaml
 	# Ensure that the gem rbs collection is installed
@@ -170,7 +170,7 @@ requirements_dev.txt.installed: requirements_dev.txt
 
 pip_install: requirements_dev.txt.installed ## Install Python dependencies
 
-Gemfile.lock: Gemfile .bundle/config
+Gemfile.lock: Gemfile {{cookiecutter.project_slug}}.gemspec .bundle/config
 	if [ ! -f Gemfile.lock ]; then \
 	  bundle install; \
 	else \
@@ -184,7 +184,7 @@ gem_dependencies: .bundle/config
 
 # Ensure any Gemfile.lock changes, even pulled from git, ensure a
 # bundle is installed.
-Gemfile.lock.installed: Gemfile vendor/.keep
+Gemfile.lock.installed: Gemfile {{cookiecutter.project_slug}}.gemspec vendor/.keep
 	bundle install
 	touch Gemfile.lock.installed
 
@@ -236,6 +236,9 @@ clean-coverage: clear_metrics ## Clean out previous output of test coverage to a
 
 coverage: test report-coverage ## check code coverage
 	@bin/rake undercover
+
+release: sig/{{cookiecutter.project_slug}}.rbs rbi/{{cookiecutter.project_slug}}.rbi ## Create a new release
+	bin/rake release
 
 report-coverage: test ## Report summary of coverage to stdout, and generate HTML, XML coverage report
 

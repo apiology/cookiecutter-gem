@@ -275,6 +275,41 @@ jobs:
             make citest cicoverage
     # This seemed to shave 5ish% of the build time off when added
     resource_class: large
+  publish_gem:
+    working_directory: ~/{{cookiecutter.project_slug}}
+    docker:
+      - image: cimg/base:current
+    steps:
+      - set_up_environment
+      - run_with_languages:
+          label: Make RubyGems release
+          command: |
+            set -x
+
+            # Coax overcommit into working
+            git config --global user.email "test@test.test"
+            git config --global user.name "Test Test"
+            # bump runs 'bundle' after excluding env vars, but doesn't
+            # use --conservative or exclude env vars when running 'git
+            # commit', which might need an updated gem.  This results
+            # in periodic unexpected failures, fixed by later caching
+            # :(
+            #
+            # Let's just use the system bundle path here
+            unset BUNDLE_PATH
+            bundle install
+            bundle exec bump --commit-message ' [skip ci]' --tag --tag-prefix=v minor
+            bin/overcommit --sign pre-commit
+            bin/overcommit --sign pre-push
+            # bundle exec needed for overcommit hooks
+            #
+            # if this step fails, check that
+            # https://app.circleci.com/settings/project/github/apiology/{{cookiecutter.project_slug}}/ssh
+            # includes a read-write 'user key':
+            SKIP=RakeTarget bundle exec git push --set-upstream origin "${CIRCLE_BRANCH:?}"
+            git status
+            make release
+            bundle exec rake trigger_next_builds
 
 workflows:
   version: 2
@@ -295,3 +330,9 @@ workflows:
   build:
     jobs:
       - build
+      - publish_gem:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
