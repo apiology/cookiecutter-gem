@@ -175,6 +175,8 @@ ensure_bundle() {
   # https://app.circleci.com/pipelines/github/apiology/source_finder/21/workflows/88db659f-a4f4-4751-abc0-46f5929d8e58/jobs/107
   set_rbenv_env_variables
 
+  # psych needs libyaml headers at bundle-install time on Linux CI images
+  # (ruby-build installs libyaml for new rubies, but bundle can run first).
   ensure_dev_library yaml.h libyaml libyaml-dev
 
   bundler_version=$(ruby -e 'require "rubygems/bundler_version_finder"; puts Gem::BundlerVersionFinder.bundler_version')
@@ -235,7 +237,7 @@ ensure_bundle() {
   # Docker builds where it's already installed if this is not run.
   make Gemfile.lock
   make bundle_install
-  for platform in arm64-darwin-23 x86_64-darwin-23 x86_64-linux x86_64-linux-musl
+  for platform in x86_64-linux x86_64-linux-musl
   do
     grep "${platform:?}" Gemfile.lock >/dev/null 2>&1 || bundle lock --add-platform "${platform:?}"
   done
