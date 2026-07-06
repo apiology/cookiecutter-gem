@@ -52,7 +52,7 @@ YARD_PLUGIN_OPTS = --plugin yard-sorbet --plugin yard-solargraph
 # forever once restored.  CI fallback cache keys omit the Makefile
 # checksum, so a Makefile change alone will still restore the old
 # .yardoc.  Bumping the cache prefix forces a clean rebuild and avoids
-# shipping stale types (e.g. test-only constants) in sig/rbi.
+# shipping stale types (e.g. test-only TestDate/TestTasks) in sig/rbi.
 YARD_OPTS = $(YARD_PLUGIN_OPTS) -c .yardoc --output-dir yardoc --backtrace --exclude '^config/' --exclude '^spec/' --exclude '^feature/' '{lib,app}/**/*.rb' 'ext/**/*.{c,rb}'
 
 types.installed: tapioca.installed Gemfile.lock Gemfile.lock.installed rbi/{{cookiecutter.project_slug}}.rbi sorbet/tapioca/require.rb sorbet/config ## Ensure typechecking dependencies are in place
@@ -148,7 +148,7 @@ solargraph-strict: build-typecheck ## Run Solargraph typechecker
 solargraph-strong: build-typecheck ## Run Solargraph typechecker
 	bin/solargraph typecheck --level strong
 
-typecheck: build-typecheck srb solargraph  ## validate types in code and configuration
+typecheck: build-typecheck srb solargraph ## validate types in code and configuration
 
 citypecheck: ci-build-typecheck srb ci-solargraph ## Run type check from CircleCI
 
