@@ -175,9 +175,13 @@ ensure_bundle() {
   # https://app.circleci.com/pipelines/github/apiology/source_finder/21/workflows/88db659f-a4f4-4751-abc0-46f5929d8e58/jobs/107
   set_rbenv_env_variables
 
-  # psych needs libyaml headers at bundle-install time on Linux CI images
-  # (ruby-build installs libyaml for new rubies, but bundle can run first).
-  ensure_dev_library yaml.h libyaml libyaml-dev
+  # Compile deps before bundle install: ensure_dev_library probes yaml.h
+  # (libyaml-dev headers), not a separate runtime package — psych's C ext
+  # links libyaml when the default gem rebuilds on Linux CI.
+  # https://github.com/ruby/psych/blob/master/ext/psych/extconf.rb
+  # Called here (not only from ensure_ruby_versions) because cached rbenv
+  # rubies skip ensure_ruby_build_requirements during rbenv install.
+  ensure_ruby_build_requirements
 
   bundler_version=$(ruby -e 'require "rubygems/bundler_version_finder"; puts Gem::BundlerVersionFinder.bundler_version')
   # if bundler_version is empty
