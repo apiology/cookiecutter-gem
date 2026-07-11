@@ -262,7 +262,7 @@ ensure_bundle() {
 }
 
 set_ruby_local_version() {
-  latest_ruby_version="$(echo "${ruby_versions}" | tail -1)"
+  latest_ruby_version="$(cut -d' ' -f1 <<< "${ruby_versions}")"
   if [ "${latest_ruby_version}" != "$(cat .ruby-version 2>/dev/null)" ]
   then
     echo "${latest_ruby_version}" > .ruby-version
@@ -392,8 +392,6 @@ ensure_python_versions() {
 ensure_pyenv_virtualenvs() {
   latest_python_version="$(cut -d' ' -f1 <<< "${python_versions}")"
   virtualenv_name="cookiecutter-gem-${latest_python_version}"
-  pyenv virtualenv "${latest_python_version}" "${virtualenv_name}" || true
-  virtualenv_name="cookiecutter-ruby-${latest_python_version}"
   if ! [ -d ~/".pyenv/versions/${virtualenv_name}" ]
   then
     pyenv virtualenv "${latest_python_version}" "${virtualenv_name}" || true

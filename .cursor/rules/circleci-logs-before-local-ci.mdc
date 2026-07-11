@@ -26,7 +26,7 @@ Server: **`circleci-mcp-server`** in `~/.cursor/mcp.json` ([CircleCI MCP](https:
 |------|-----|
 | `get_build_failure_logs` | Failing step output (pipeline/workflow URL from `gh pr checks`, or project slug + branch) |
 | `get_latest_pipeline_status` | Which workflow/job failed |
-| `list_followed_projects` | Resolve `projectSlug` (e.g. `gh/apiology/cookiecutter-ruby`) |
+| `list_followed_projects` | Resolve `projectSlug` (e.g. `gh/apiology/cookiecutter-cookiecutter`) |
 
 **Setup:** `op run` wrapper + 1Password **cursor** environment or `~/.cursor/cursor.1p.env` — see `~/.cursor/1password-cursor-environment.md`. Reload Cursor after MCP config changes.
 

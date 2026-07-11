@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package metadata for the cookiecutter-ruby cookiecutter template."""
+"""Package metadata for the cookiecutter-gem cookiecutter template."""
 
 from distutils.core import setup
 
