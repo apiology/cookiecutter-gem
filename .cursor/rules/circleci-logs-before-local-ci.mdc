@@ -39,7 +39,7 @@ If MCP tools are unavailable, ask the user to reload Cursor or fix MCP — do no
 
 ## After logs
 
-Fix from the **CI error message**, push, `gh pr checks --watch`.
+Fix from the **CI error message**, push, `gh pr checks --watch`. For baked Ruby gems, read nested **`typecheck-rbi-and-ci.mdc`** when CI and local Solargraph/Sorbet disagree.
 
 ## Not CircleCI
 
