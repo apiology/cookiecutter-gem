@@ -1,4 +1,7 @@
 {
+    "_checkout": "main",
+    "_output_dir": "/Users/broz/.cursor/worktrees/cookiecutter-gem/cascade-cookiecutter-gem-1783774400119/.git/cookiecutter",
+    "_repo_dir": "/Users/broz/.cookiecutters/cookiecutter-cookiecutter",
     "_template": "https://github.com/apiology/cookiecutter-cookiecutter",
     "email": "vince@broz.cc",
     "full_name": "Vince Broz",
@@ -8,5 +11,5 @@
     "project_short_description": "Gem Boilerplate contains all the boilerplate you need to create a RubyGems project.",
     "project_slug": "cookiecutter-gem",
     "project_super_short_description": "Cookiecutter template for a RubyGems project.",
-    "type_of_github_repo": "private"
+    "type_of_github_repo": "public"
 }
