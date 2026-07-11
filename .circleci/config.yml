@@ -64,7 +64,6 @@ commands:
           keys:
             - pyenv-v3-{{ checksum "requirements_dev.txt" }}-
             - pyenv-v3-
-            - pyenv-
       - run:
           name: Initialize packages
           no_output_timeout: 30m
