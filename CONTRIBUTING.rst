@@ -41,7 +41,7 @@ Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
 Cookiecutter Gem could always use more documentation, whether as part of
-the official docs, in docstrings, or even on the web in blog posts, articles,
+the official Cookiecutter Gem docs, in docstrings, or even on the web in blog posts, articles,
 and such.
 
 Submit Feedback
