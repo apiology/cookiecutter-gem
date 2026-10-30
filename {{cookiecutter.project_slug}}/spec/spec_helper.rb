@@ -8,6 +8,7 @@ require 'simplecov-lcov'
 require 'undercover/simplecov_formatter'
 
 SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
+# @sg-ignore https://github.com/apiology/solargraph/pull/282
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new(
   [
     SimpleCov::Formatter::HTMLFormatter,
